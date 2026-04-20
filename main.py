@@ -41,6 +41,14 @@ async def error_handler(update: Update, context: CallbackContext) -> None:
         )
 
 
+# Comando /start
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Comando /start"""
+    user = update.effective_user
+    await update.message.reply_html(rf"Bienvenida {user.mention_html()}!")
+
+
+
 ###
 # /help
 ###
@@ -78,6 +86,7 @@ async def echo(update: Update, context: CallbackContext) -> None:
 def main():
     app = Application.builder().token(BOT_TOKEN).build()
 
+    app.add_handler(CommandHandler( "start", start_command, filters=filters.User(USER_AUTORIZADO) ))
     app.add_handler(CommandHandler( "help", help_command, filters=filters.User(USER_AUTORIZADO) ))
     app.add_handler(MessageHandler( filters.TEXT & ~filters.COMMAND & filters.User(USER_AUTORIZADO), echo ))
 
