@@ -1,6 +1,6 @@
 import os, logging, subprocess
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, ContextTypes
 
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())

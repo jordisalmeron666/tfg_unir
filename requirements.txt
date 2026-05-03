@@ -1,5 +1,8 @@
+chromadb
+llama-index-vector-stores-chroma
+fitz
 llama-index
-llama-index-embeddings-openai
+llama-index-embeddings-azure-openai
 llama-index-llms-openai
 llama-index-readers-file 
 pydantic

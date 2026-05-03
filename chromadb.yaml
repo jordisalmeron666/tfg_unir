@@ -1,0 +1,27 @@
+services:
+  chromadb:
+    image: chromadb/chroma
+    container_name: tfg_chromadb
+    volumes:
+      - /home/salme/Services/tfg_chromadb:/chroma/chroma
+
+    restart: unless-stopped
+    ports:
+      - "801:8000"
+    
+    command: "run --path /chroma/chroma --host 0.0.0.0 --port 8000"
+    
+    environment:
+      - ANONYMIZED_TELEMETRY=FALSE
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+      # Token-based auth
+      - CHROMA_SERVER_AUTHN_PROVIDER=chromadb.auth.token_authn.TokenAuthenticationServerProvider
+      - CHROMA_SERVER_AUTHN_CREDENTIALS=1234567890
+      - CHROMA_AUTH_TOKEN_TRANSPORT_HEADER=Authorization
+
+    #healthcheck:
+    #  test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v2/heartbeat" ]
+    #  interval: 30s
+    #  timeout: 10s
+    #  retries: 3
