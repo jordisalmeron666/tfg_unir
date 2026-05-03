@@ -1,0 +1,288 @@
+import json
+import logging
+from typing import Dict, List
+
+import chromadb
+from llama_index.llms.azure_openai import AzureOpenAI
+from llama_index.core.llms import ChatMessage, MessageRole
+from llama_index.core.tools import FunctionTool
+from llama_index.core import VectorStoreIndex
+from llama_index.core.vector_stores.types import MetadataFilters, ExactMatchFilter
+from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
+from llama_index.vector_stores.chroma import ChromaVectorStore
+
+from config import (
+    AOAI_API_KEY, AOAI_ENDPOINT, AOAI_API_VERSION,
+    AOAI_ROUTING_MODEL, AOAI_ANSWERING_MODEL,
+    AGENT_SYSTEM_PROMPT, VALIDATOR_SYSTEM_PROMPT,
+    settings,
+)
+from indexes import INDEX_CONFIG
+
+from llama_index.core import set_global_handler
+set_global_handler("simple")
+
+# ===========================
+# Estado Global
+# ===========================
+tools_metadata: Dict[str, str] = {}   # {section_key: description}
+_llm = None
+_eval_llm = None
+_index = None                          # VectorStoreIndex activo
+_current_collection_name: str = ""
+
+
+def _get_llm(for_evaluation: bool = False) -> AzureOpenAI:
+    global _llm, _eval_llm
+
+    if for_evaluation and _eval_llm:
+        return _eval_llm
+    if not for_evaluation and _llm:
+        return _llm
+
+    model_name = AOAI_ANSWERING_MODEL if for_evaluation else AOAI_ROUTING_MODEL
+    llm = AzureOpenAI(
+        model=model_name,
+        deployment_name=model_name,
+        api_key=AOAI_API_KEY,
+        azure_endpoint=AOAI_ENDPOINT,
+        api_version=AOAI_API_VERSION,
+        temperature=0.1 if for_evaluation else 0.3,
+    )
+
+    if for_evaluation:
+        _eval_llm = llm
+    else:
+        _llm = llm
+
+    return llm
+
+
+# ===========================
+# Tool
+# ===========================
+def _search_answer_impl(seccion: str, query: str) -> str:
+    """
+    Busca información en una sección específica del reglamento del juego mediante búsqueda semántica.
+
+    Args:
+        seccion: El nombre exacto de la sección del reglamento en la que buscar.
+        query: La consulta concreta a buscar semánticamente dentro de esa sección.
+
+    Returns:
+        JSON con la sección consultada y el contexto encontrado.
+    """
+    logging.info(f"Tool 'search_answer' — section: '{seccion}', query: '{query}'")
+    normalized = seccion.lower().strip() if isinstance(seccion, str) else seccion
+
+    if not tools_metadata or _index is None:
+        return json.dumps({"seccion_consultada": normalized, "contexto": "Error: La información del juego no está cargada."})
+
+    if normalized not in tools_metadata:
+        available = ', '.join(tools_metadata.keys())
+        return json.dumps({"seccion_consultada": normalized, "contexto": f"Sección '{normalized}' no válida. Disponibles: {available}"})
+
+    try:
+        filters = MetadataFilters(filters=[ExactMatchFilter(key="section", value=normalized)])
+        retriever = _index.as_retriever(similarity_top_k=5, filters=filters)
+        nodes = retriever.retrieve(query)
+
+        if not nodes:
+            return json.dumps({"seccion_consultada": normalized, "contexto": "No se encontraron fragmentos relevantes en esta sección."})
+
+        contexto = "\n\n---\n\n".join(
+            f"[{n.metadata.get('file_name', '?')}, p.{n.metadata.get('page_label', '?')}]\n{n.get_content()}"
+            for n in nodes
+        )
+        return json.dumps({"seccion_consultada": normalized, "contexto": contexto})
+
+    except Exception as e:
+        logging.error(f"Error en búsqueda ChromaDB: {e}", exc_info=True)
+        return json.dumps({"seccion_consultada": normalized, "contexto": f"Error al realizar la búsqueda: {e}"})
+
+
+search_tool = FunctionTool.from_defaults(fn=_search_answer_impl, name="search_answer")
+
+
+# ===========================
+# Carga del juego
+# ===========================
+def load_game_answerer_model(selected_game: str = "trench_crusade"):
+    """Carga el índice ChromaDB del juego seleccionado."""
+    global tools_metadata, _index, _current_collection_name, _llm, _eval_llm
+
+    logging.info(f"Loading game: {selected_game}")
+
+    if selected_game not in INDEX_CONFIG:
+        logging.error(f"Game '{selected_game}' not found in INDEX_CONFIG")
+        tools_metadata = {}
+        _index = None
+        return
+
+    game_config = INDEX_CONFIG[selected_game]
+    _current_collection_name = game_config["collection"]
+    tools_metadata = {key: cfg["description"] for key, cfg in game_config["sections"].items()}
+
+    try:
+        embed_model = AzureOpenAIEmbedding(
+            model=settings.aoai_embedding_model,
+            deployment_name=settings.aoai_embedding_model,
+            api_key=settings.aoai_api_key,
+            azure_endpoint=settings.aoai_endpoint,
+            api_version=settings.aoai_api_version,
+        )
+        chroma_client = chromadb.HttpClient(
+            host=settings.chroma_host,
+            port=settings.chroma_port,
+            headers={"Authorization": f"Bearer {settings.chroma_auth_token}"}
+        )
+        chroma_collection = chroma_client.get_collection(_current_collection_name)
+        vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+        _index = VectorStoreIndex.from_vector_store(vector_store, embed_model=embed_model)
+        _llm = None
+        _eval_llm = None
+        logging.info(f"Loaded ChromaDB index for '{selected_game}'. Sections: {list(tools_metadata.keys())}")
+
+    except Exception as e:
+        logging.error(f"Error loading ChromaDB index for '{selected_game}': {e}", exc_info=True)
+        tools_metadata = {}
+        _index = None
+
+
+# ===========================
+# Evaluación de Respuesta
+# ===========================
+async def evaluate_response(pregunta: str, respuesta: str) -> dict:
+    """Evalúa si la respuesta es aceptable."""
+    llm = _get_llm(for_evaluation=True)
+    messages = [
+        ChatMessage(role=MessageRole.SYSTEM, content=VALIDATOR_SYSTEM_PROMPT),
+        ChatMessage(role=MessageRole.USER, content=f'Pregunta: "{pregunta}"\n\nRespuesta: "{respuesta}"'),
+    ]
+    try:
+        response = await llm.achat(messages)
+        result_text = response.message.content.strip()
+        if result_text.startswith("```"):
+            result_text = result_text.strip("`").strip("json").strip()
+        return json.loads(result_text)
+    except Exception as e:
+        logging.error(f"Error evaluating response: {e}")
+        if "no tengo esa información" in respuesta.lower():
+            return {"es_aceptable": False, "motivo": "No se encontró información."}
+        return {"es_aceptable": True, "motivo": "Fallback tras error de evaluación."}
+
+
+# ===========================
+# Orquestación
+# ===========================
+async def orchestrate_answer_with_tools(user_query: str, message_provisional=None) -> str:
+    """Orquesta la búsqueda y generación de respuesta con historial local."""
+
+    if not tools_metadata or _index is None:
+        return "Lo siento, la información del juego no está cargada."
+
+    llm = _get_llm()
+    tools = [search_tool]
+
+    search_history: List[Dict[str, str]] = []
+    used_sections = []
+    round_count = 0
+    final_answer = ""
+
+    available_sections = "\n".join(
+        f"- {k}: {v[:100]}..." for k, v in tools_metadata.items()
+    )
+
+    while True:
+        round_count += 1
+        logging.info(f"Round {round_count}: '{user_query}'")
+
+        if message_provisional:
+            await message_provisional.edit_text(f"Ronda {round_count}: Procesando...")
+
+        context_info = ""
+        if search_history:
+            context_info = "\n\nInformación ya consultada:\n"
+            for idx, s in enumerate(search_history, 1):
+                context_info += f"{idx}. Sección '{s['section']}' (query: '{s['query']}'): {s['result'][:200]}...\n"
+
+        instruction = (
+            "Usa la herramienta 'search_answer' indicando la sección y la consulta concreta a buscar."
+            if round_count == 1
+            else "Si la información anterior no es suficiente, busca en otra sección con una query diferente. Si ya tienes suficiente información, proporciona la respuesta final sin usar herramientas."
+        )
+
+        prompt = f"""Pregunta del usuario: "{user_query}"
+
+Secciones disponibles:
+{available_sections}{context_info}
+
+{instruction}"""
+
+        # Primera llamada: el LLM decide qué sección y qué buscar
+        response = await llm.achat_with_tools(
+            tools,
+            user_msg=prompt,
+            chat_history=[ChatMessage(role=MessageRole.SYSTEM, content=AGENT_SYSTEM_PROMPT)],
+        )
+        tool_calls = llm.get_tool_calls_from_response(response, error_on_no_tool_call=False)
+
+        if not tool_calls:
+            final_answer = response.message.content or "No pude encontrar una respuesta."
+            break
+
+        # Construir historial completo para la segunda llamada
+        tool_history = [
+            ChatMessage(role=MessageRole.SYSTEM, content=AGENT_SYSTEM_PROMPT),
+            ChatMessage(role=MessageRole.USER, content=prompt),
+            response.message,  # mensaje del asistente con los tool calls
+        ]
+
+        for tc in tool_calls:
+            section = tc.tool_kwargs.get("seccion", "").lower()
+            query = tc.tool_kwargs.get("query", user_query)
+            used_sections.append(section)
+
+            if message_provisional:
+                await message_provisional.edit_text(
+                    f"Ronda {round_count}: Buscando en <b>{section}</b>...",
+                    parse_mode="HTML"
+                )
+
+            result = _search_answer_impl(**tc.tool_kwargs)
+            search_history.append({"section": section, "query": query, "result": result})
+
+            tool_history.append(ChatMessage(
+                role=MessageRole.TOOL,
+                content=result,
+                additional_kwargs={"tool_call_id": tc.tool_id, "name": tc.tool_name}
+            ))
+
+        # Segunda llamada: sintetizar respuesta con el contexto recuperado
+        response2 = await llm.achat(tool_history)
+        generated_answer = response2.message.content or ""
+
+        evaluation = await evaluate_response(user_query, generated_answer)
+
+        if evaluation.get("es_aceptable"):
+            logging.info("Answer accepted.")
+            final_answer = generated_answer
+            break
+
+        logging.info(f"Answer rejected: {evaluation.get('motivo')}")
+        remaining = [s for s in tools_metadata.keys() if s not in used_sections]
+        if not remaining:
+            final_answer = generated_answer
+            break
+
+    if not final_answer:
+        final_answer = f"Tras {round_count} búsquedas, no encontré una respuesta clara."
+
+    if used_sections:
+        final_answer = f"Secciones consultadas [{len(used_sections)}]: <b>{', '.join(used_sections)}</b>\n\n{final_answer}"
+
+    return final_answer
+
+
+# Carga inicial
+load_game_answerer_model()

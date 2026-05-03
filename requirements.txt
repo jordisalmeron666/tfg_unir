@@ -3,7 +3,7 @@ llama-index-vector-stores-chroma
 fitz
 llama-index
 llama-index-embeddings-azure-openai
-llama-index-llms-openai
+llama-index-llms-azure-openai
 llama-index-readers-file 
 pydantic
 pydantic-settings
@@ -11,3 +11,5 @@ pypdf
 python-dotenv
 python-telegram-bot
 
+#langchain-core
+#langchain-openai

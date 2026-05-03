@@ -12,6 +12,7 @@ from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.readers.file import PDFReader
 
 from config import settings
+from indexes import INDEX_CONFIG
 
 # ===========================
 
@@ -130,7 +131,7 @@ if __name__ == "__main__":
         "=" * 60,
     ]
 
-    for game_key, game_config in settings.index_config.items():
+    for game_key, game_config in INDEX_CONFIG.items():
         print(f"\n=== Indexando juego: {game_key} ===")
         summary = create_index_for_game(game_key, game_config, client)
 

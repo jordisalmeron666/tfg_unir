@@ -1,4 +1,4 @@
-Indexación ejecutada: 2026-05-03 18:40:50
+Indexación ejecutada: 2026-05-03 19:30:49
 ============================================================
 
 Juego: trench_crusade
