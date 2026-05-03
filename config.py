@@ -9,7 +9,7 @@ load_dotenv(find_dotenv())
 # CONFIGURACIONES GENERALES
 # ===========================
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-usuarios_permitidos_str = os.getenv("USUARIOS_PERMITIDOS", "91385100")
+usuarios_permitidos_str = os.getenv("USUARIOS_PERMITIDOS")
 AUTHD_USERS = [int(user_id) for user_id in usuarios_permitidos_str.split(",") if user_id.strip().isdigit()]
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "WARNING")
@@ -19,9 +19,9 @@ BASE_DIR = os.getenv("BASE_DIR", "/workspaces/tfg_unir/files/")
 # ===========================
 # CONFIGURACIONES ChromaDB
 # ===========================
-CHROMA_AUTH_TOKEN = os.getenv("CHROMA_AUTH_TOKEN", "1234567890")
-CHROMA_HOST = os.getenv("CHROMA_HOST", "localhost")
-CHROMA_PORT = int(os.getenv("CHROMA_PORT", 801))
+CHROMA_AUTH_TOKEN = os.getenv("CHROMA_AUTH_TOKEN")
+CHROMA_HOST = os.getenv("CHROMA_HOST")
+CHROMA_PORT = int(os.getenv("CHROMA_PORT"))
 
 # ===========================
 # CONFIGURACIONES Azure OpenAI
@@ -30,10 +30,10 @@ LLM_PROVIDER = "azure_openai"
 
 AOAI_API_KEY = os.getenv("AOAI_API_KEY")
 AOAI_ENDPOINT = os.getenv("AOAI_ENDPOINT")
-AOAI_API_VERSION = os.getenv("AOAI_API_VERSION", "2024-02-15-preview")
-AOAI_EMBEDDING_MODEL = os.getenv("AOAI_EMBEDDING_MODEL", "text-embedding-3-large")
-AOAI_ROUTING_MODEL = os.getenv("AOAI_ROUTING_MODEL", "gpt-4.1")
-AOAI_ANSWERING_MODEL = os.getenv("AOAI_ANSWERING_MODEL", "gpt-4.1")
+AOAI_API_VERSION = os.getenv("AOAI_API_VERSION")
+AOAI_EMBEDDING_MODEL = os.getenv("AOAI_EMBEDDING_MODEL")
+AOAI_ROUTING_MODEL = os.getenv("AOAI_ROUTING_MODEL")
+AOAI_ANSWERING_MODEL = os.getenv("AOAI_ANSWERING_MODEL")
 
 
 # ===========================
