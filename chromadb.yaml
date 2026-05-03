@@ -17,7 +17,7 @@ services:
       - PERSIST_DIRECTORY=/chroma/chroma
       # Token-based auth
       - CHROMA_SERVER_AUTHN_PROVIDER=chromadb.auth.token_authn.TokenAuthenticationServerProvider
-      - CHROMA_SERVER_AUTHN_CREDENTIALS=1234567890
+      - CHROMA_SERVER_AUTHN_CREDENTIALS=xxx
       - CHROMA_AUTH_TOKEN_TRANSPORT_HEADER=Authorization
 
     #healthcheck:
