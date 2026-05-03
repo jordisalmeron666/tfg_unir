@@ -13,14 +13,13 @@ usuarios_permitidos_str = os.getenv("USUARIOS_PERMITIDOS", "91385100")
 AUTHD_USERS = [int(user_id) for user_id in usuarios_permitidos_str.split(",") if user_id.strip().isdigit()]
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "WARNING")
-MAX_ROUNDS = int(os.getenv("MAX_ROUNDS", 3))
+#MAX_ROUNDS = int(os.getenv("MAX_ROUNDS", 3))
 
 BASE_DIR = os.getenv("BASE_DIR", "/workspaces/tfg_unir/files/")
 
 CHROMA_AUTH_TOKEN = os.getenv("CHROMA_AUTH_TOKEN", "1234567890")
 CHROMA_HOST = os.getenv("CHROMA_HOST", "localhost")
 CHROMA_PORT = int(os.getenv("CHROMA_PORT", 801))
-CHROMA_COLLECTION = os.getenv("CHROMA_COLLECTION", "tfg_collection")
 
 # ===========================
 # CONFIGURACIONES OpenAi
