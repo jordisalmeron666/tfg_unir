@@ -19,7 +19,7 @@ from config import (
 )
 from indexes import INDEX_CONFIG
 
-#TODO desactivar en pro
+#FIXME desactivar en pro
 from llama_index.core import set_global_handler
 set_global_handler("simple")
 
@@ -108,6 +108,7 @@ search_tool = FunctionTool.from_defaults(fn=_search_answer_impl, name="search_an
 # ===========================
 # Carga del juego
 # ===========================
+#TODO revisar si indices estan siempre en memoria o se pueden cargar/destruir segun el juego seleccionado para ahorrar recursos
 def load_game_answerer_model(selected_game: str = "trench_crusade"):
     """Carga el índice ChromaDB del juego seleccionado."""
     global tools_metadata, _index, _current_collection_name, _llm, _eval_llm
@@ -153,6 +154,7 @@ def load_game_answerer_model(selected_game: str = "trench_crusade"):
 # ===========================
 # Evaluación de Respuesta
 # ===========================
+#TODO si fallo, revisar q la tool se marque como usada
 async def evaluate_response(pregunta: str, respuesta: str) -> dict:
     """Evalúa si la respuesta es aceptable."""
     llm = _get_llm(for_evaluation=True)
@@ -176,6 +178,7 @@ async def evaluate_response(pregunta: str, respuesta: str) -> dict:
 # ===========================
 # Orquestación
 # ===========================
+#TODO modulo de chitchat para preguntas generales o de contexto que no requieran búsqueda
 async def orchestrate_answer_with_tools(user_query: str, message_provisional=None) -> str:
     """Orquesta la búsqueda y generación de respuesta con historial local."""
 

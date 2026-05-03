@@ -18,7 +18,8 @@ from indexes import INDEX_CONFIG
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
-#TODO no todos los jeugos del taco siempre, parametrizar o configurar cuales indexar cada vez
+#FIXME no todos los jeugos del taco siempre, parametrizar o configurar cuales indexar cada vez
+#TODO comentar los pasos
 
 ###
 # Configura los servicios globales de LlamaIndex (Azure OpenAI Embeddings).
@@ -125,6 +126,9 @@ def create_index_for_game(game_key: str, game_config: dict, chroma_client):
     return summary
 
 # ===========================
+# Esto se tira como un standalone
+# ===========================
+
 
 if __name__ == "__main__":
     import datetime

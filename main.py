@@ -15,7 +15,7 @@ logging.basicConfig(level=LOG_LEVEL,
                     format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
 logging.getLogger("httpx").setLevel(logging.WARNING) # Silenciar logs muy verbosos de httpx
 
-GAME_SELECTED = "trench_crusade" # Valor por defecto, se puede cambiar con el comando /game
+GAME_SELECTED = "trench_crusade" # Valor por defecto
 
 
 # ===========================
@@ -314,12 +314,12 @@ def main():
 
     try:
         # Run the bot until the user presses Ctrl-C
-        print("Trench Bot started. HELLO!")
+        print("TFG Bot started. HELLO!")
         app.run_polling(allowed_updates=Update.ALL_TYPES , drop_pending_updates=True)
-        logging.info("Trench Bot stopped by user. BYE!")
+        logging.info("TFG Bot stopped by user. BYE!")
 
     except KeyboardInterrupt:
-        logging.info("Trench Bot stopped by user. BYE!")
+        logging.info("TFG Bot stopped by user. BYE!")
 
     except Exception as e:
         print(f"Critical error in main loop: {e}")
