@@ -10,6 +10,3 @@ pydantic-settings
 pypdf 
 python-dotenv
 python-telegram-bot
-
-#langchain-core
-#langchain-openai
