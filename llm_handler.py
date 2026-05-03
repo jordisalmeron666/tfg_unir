@@ -19,6 +19,7 @@ from config import (
 )
 from indexes import INDEX_CONFIG
 
+#TODO desactivar en pro
 from llama_index.core import set_global_handler
 set_global_handler("simple")
 

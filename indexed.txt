@@ -1,13 +1,14 @@
-Indexación ejecutada: 2026-05-03 19:30:49
+Indexación ejecutada: 2026-05-03 22:46:26
 ============================================================
 
 Juego: trench_crusade
   Colección ChromaDB: trench_crusade
-  Indexados (11):
+  Indexados (12):
     [OK] rules (43 documentos)
     [OK] armamento (38 documentos)
-    [OK] scenarios (63 documentos)
+    [OK] scenarios (53 documentos)
     [OK] campaigns (43 documentos)
+    [OK] glossary (10 documentos)
     [OK] faction_heretics (20 documentos)
     [OK] faction_blackgrial (26 documentos)
     [OK] faction_court (26 documentos)
@@ -19,7 +20,7 @@ Juego: trench_crusade
 Juego: lastwar
   Colección ChromaDB: lastwar
   Indexados (5):
-    [OK] core_rules (45 documentos)
+    [OK] core_rules (42 documentos)
     [OK] hostiles (16 documentos)
     [OK] campaign (4 documentos)
     [OK] tank_bunker (4 documentos)

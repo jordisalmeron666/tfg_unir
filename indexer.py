@@ -18,7 +18,7 @@ from indexes import INDEX_CONFIG
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
-
+#TODO no todos los jeugos del taco siempre, parametrizar o configurar cuales indexar cada vez
 
 ###
 # Configura los servicios globales de LlamaIndex (Azure OpenAI Embeddings).
@@ -96,9 +96,17 @@ def create_index_for_game(game_key: str, game_config: dict, chroma_client):
                 summary["skipped"].append(f"{section_key} (sin documentos en {data_path})")
                 continue
 
+            # le metemos tb la página real del documento, sumando el offset de la sección para que coincida con el PDF original
+            page_offset = section_config.get("page_offset", 0)
             for doc in documents:
                 doc.metadata["section"] = section_key
                 doc.metadata["game"] = game_key
+                if page_offset:
+                    raw = doc.metadata.get("page_label", "")
+                    try:
+                        doc.metadata["page_label"] = str(int(raw) + page_offset)
+                    except (ValueError, TypeError):
+                        pass
 
             logging.info(f"  Documentos cargados: {len(documents)}")
 
