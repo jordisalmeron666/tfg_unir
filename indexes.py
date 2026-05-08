@@ -155,10 +155,10 @@ INDEX_CONFIG = {
                 "data_subdir": "rules",
                 "page_offset": 5
             },
-            "partyrun": { #***
-                "description": "Lista y reglas de monstruos en Forbidden Psalm. Incluye perfiles con HP, Moral, ataque, armadura y reglas especiales. Explica activación, moral, interacción con modelos caídos, keywords y cómo afectan los monstruos a la partida. Contiene monstruos únicos como Afanc, Cath Palug, Rat King, Siren, Skeleton, Faecal Ghoul, Spider Queen, Sock Stealing Goblin, Tapeworm Terror, The Silent, y más.",
-                "tags": ["hostiles", "enemigos", "perfiles", "comportamiento"],
-                "data_subdir": "monsters",
+            "partyrun": {
+                "description": "Este índice cubre las reglas de partidas y misiones en Zona Alfa, con especial hincapié en cómo se configuran los objetivos de misión, límites de turno y Hot Spots para mantener el ritmo del juego y el enfoque de los jugadores. Explica que cada escenario debe tener un objetivo principal claro, un límite de turnos para evitar el estancamiento y la colocación estratégica de Hot Spots que ofrecen oportunidades de botín y avances de campaña. Detalla la aparición y gestión de Hostiles de la Zona según el nivel de amenaza y tablas de generación, permitiendo sustitución de miniaturas según la colección disponible. Incluye la mecánica de Salvamento: sólo después de eliminar a los hostiles en el objetivo o Hot Spot, se puede buscar botín; cada Hot Spot sólo puede ser registrado una vez, salvo habilidades especiales. Se recomienda ajustar la dificultad de los Hostiles si las partidas resultan demasiado sencillas o difíciles para las bandas. El documento enfatiza la tensión entre supervivencia y obtener recompensas, y la flexibilidad para adaptar las reglas y la ambientación según las necesidades de cada grupo de juego.",
+                "tags": ["objetivos de misión","turnos","hot spots","hostiles de la zona","salvamento","anomalías","dificultad","ambientación"],
+                "data_subdir": "partyrun",
                 "page_offset": 79
             },
             "warbands": {
@@ -172,6 +172,11 @@ INDEX_CONFIG = {
                 "tags": ["armamento","equipo","armas","armadura","granadas","explosivos","fuego indirecto","recarga","slots de equipo","valor", "efecto de área"],
                 "data_subdir": "armory_equip",
                 "page_offset": 24 # many
+            },
+            "missions": {
+                "description": "Este índice describe cómo estructurar y jugar misiones en Zona Alfa, con un enfoque en campañas narrativas y misiones vinculadas. Explica el concepto de misiones conectadas para crear tensión y propósito, con resultados (bajas, experiencia, salvamento) que se trasladan entre partidas. Incluye una tabla generadora de misiones aleatorias (Acción, Objeto, Lugar) para crear escenarios únicos. Detalla los 'Objetivos Finales' o 'Opciones de Retiro' para las tripulaciones, como acumular una cantidad específica de Zone Script (el 'Plan de 10,000 Rublos') o completar tareas específicas (recoger artefactos, desactivar una bomba, explorar regiones), proporcionando metas a largo plazo. Además, presenta la campaña introductoria 'Red Gypsy 3', una serie de tres misiones vinculadas (The Crossroads at Blyatsk, Walk in the Chernya Woods, The Ishikhov Shuffle) diseñadas para familiarizar a los jugadores con el juego, detallando para cada una: tamaño de mesa, nivel de amenaza, terreno, tripulación sugerida, zonas de despliegue, límite de turnos, hostiles de la Zona y salvamento.",
+                "tags": ["misiones","campañas","opciones de retiro","generador de misiones","tabla de misiones","red gypsy 3","the crossroads at blyatsk","walk in the chernya woods","the ishikhov shuffle"],
+                "pdf_path": "missions"
             },
         }
     },
