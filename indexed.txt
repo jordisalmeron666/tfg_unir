@@ -1,4 +1,4 @@
-Indexación ejecutada: 2026-05-03 22:46:26
+Indexación ejecutada: 2026-05-08 14:50:38
 ============================================================
 
 Juego: trench_crusade
@@ -6,7 +6,7 @@ Juego: trench_crusade
   Indexados (12):
     [OK] rules (43 documentos)
     [OK] armamento (38 documentos)
-    [OK] scenarios (53 documentos)
+    [OK] scenarios (63 documentos)
     [OK] campaigns (43 documentos)
     [OK] glossary (10 documentos)
     [OK] faction_heretics (20 documentos)
@@ -20,8 +20,37 @@ Juego: trench_crusade
 Juego: lastwar
   Colección ChromaDB: lastwar
   Indexados (5):
-    [OK] core_rules (42 documentos)
+    [OK] core_rules (45 documentos)
     [OK] hostiles (16 documentos)
     [OK] campaign (4 documentos)
     [OK] tank_bunker (4 documentos)
     [OK] scenarios (33 documentos)
+
+Juego: forbidden_psalm
+  Colección ChromaDB: fpsalm
+  Indexados (3):
+    [OK] core_rules (42 documentos)
+    [OK] monsters (31 documentos)
+    [OK] scenarios (74 documentos)
+
+Juego: zona_alfa
+  Colección ChromaDB: zona_alfa
+  Indexados (5):
+    [OK] core_rules (18 documentos)
+    [OK] partyrun (7 documentos)
+    [OK] warbands (13 documentos)
+    [OK] armory_equip (6 documentos)
+    [OK] missions (7 documentos)
+
+Juego: mordheim
+  Colección ChromaDB: mordheim
+  Indexados (9):
+    [OK] core_rules (25 documentos)
+    [OK] armory (19 documentos)
+    [OK] magic (5 documentos)
+    [OK] scenarios (22 documentos)
+    [OK] campanya (27 documentos)
+    [OK] warbands (55 documentos)
+    [OK] dramatis_personae (16 documentos)
+    [OK] mounts_vehicles (12 documentos)
+    [OK] wilderness (4 documentos)

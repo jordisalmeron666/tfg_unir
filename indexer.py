@@ -25,6 +25,18 @@ logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 # Configura los servicios globales de LlamaIndex (Azure OpenAI Embeddings).
 ###
 def setup_llamaindex_settings():
+    """
+    Configura los servicios globales de LlamaIndex para el proceso de indexación.
+
+    Rol:
+        Inicializa el modelo de embeddings de Azure OpenAI para que todas las operaciones de indexación utilicen este modelo.
+    Entradas:
+        Ninguna (usa variables globales de configuración desde settings).
+    Salidas:
+        Ninguna (afecta el estado global de LlamaIndex).
+    Notas:
+        No configura un LLM, ya que solo se requiere embeddings para indexar documentos.
+    """
     logging.info(f"Configurando LlamaIndex con Azure OpenAI Embedding: {settings.aoai_embedding_model}")
     LlamaSettings.embed_model = AzureOpenAIEmbedding(
         model=settings.aoai_embedding_model,
@@ -40,6 +52,16 @@ def setup_llamaindex_settings():
 # Devuelve un cliente ChromaDB autenticado.
 ###
 def get_chroma_client():
+    """
+    Crea y devuelve un cliente autenticado para ChromaDB.
+
+    Rol:
+        Permite interactuar con la base de datos vectorial ChromaDB para crear/eliminar colecciones y almacenar embeddings.
+    Entradas:
+        Ninguna (usa configuración global de settings).
+    Salidas:
+        Instancia de chromadb.HttpClient autenticada.
+    """
     return chromadb.HttpClient(
         host=settings.chroma_host,
         port=settings.chroma_port,
@@ -52,6 +74,22 @@ def get_chroma_client():
 # Devuelve un dict con el resumen de la indexación.
 ###
 def create_index_for_game(game_key: str, game_config: dict, chroma_client):
+    """
+    Elimina (si existe) y recrea la colección ChromaDB para un juego, indexando todas sus secciones.
+
+    Rol:
+        Orquesta el proceso de indexación para un juego concreto, recorriendo sus secciones y almacenando los embeddings en la colección correspondiente de ChromaDB.
+    Entradas:
+        game_key: Clave identificadora del juego (str).
+        game_config: Diccionario de configuración del juego (colección, secciones, rutas, offsets, etc).
+        chroma_client: Cliente autenticado de ChromaDB.
+    Salidas:
+        summary: dict con el resumen de la indexación (colección, secciones indexadas, fallidas y saltadas).
+    Notas:
+        Elimina la colección previa si existe, para evitar duplicados.
+        Indexa solo secciones con datos disponibles.
+        Añade metadatos útiles a cada documento (juego, sección, página real).
+    """
     collection_name = game_config["collection"]
     base_subdir = game_config.get("base_subdir", game_key)
     sections = game_config.get("sections", {})

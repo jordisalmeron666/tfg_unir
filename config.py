@@ -89,4 +89,6 @@ print("Configuración cargada:")
 print(f"  Base dir: {settings.base_dir}")
 print(f"  ChromaDB: {settings.chroma_host}:{settings.chroma_port}")
 print(f"  Azure OpenAI Embedding Model: {settings.aoai_embedding_model}")
+print(f"  Azure OpenAI Routing Model: {settings.aoai_routing_model}")
+print(f"  Azure OpenAI Answering Model: {settings.aoai_answering_model}")
 

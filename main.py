@@ -39,7 +39,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     botid = await context.bot.get_me()
     # Construir la lista de juegos disponibles a partir de INDEX_CONFIG
     games_list = "\n".join(
-        f"    «{game_key}»: <i>{', '.join(game_config['sections'].keys())}</i>"
+        f"    - «{game_key}»: <i>{', '.join(game_config['sections'].keys())}</i>"
         for game_key, game_config in INDEX_CONFIG.items()
     )
    
