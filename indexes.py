@@ -2,6 +2,8 @@
 # CONFIGURACIÓN DE ÍNDICES POR JUEGO
 # Cada juego tiene su colección ChromaDB y sus secciones
 # ===========================
+#TODO gestion de chitchat
+
 
 INDEX_CONFIG = {
     ###

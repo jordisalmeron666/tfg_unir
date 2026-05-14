@@ -5,13 +5,12 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup #set_game_comman
 from telegram.ext import CallbackQueryHandler #set_game_command
 import chromadb
 
-from config import CHROMA_HOST, CHROMA_PORT, CHROMA_AUTH_TOKEN
-from config import TELEGRAM_BOT_TOKEN, LOG_LEVEL, AUTHD_USERS
+from config import settings
 from indexes import GAMES, INDEX_CONFIG
 from llm_handler import orchestrate_answer_with_tools, load_game_answerer_model
 
 # Configuración básica de logging
-logging.basicConfig(level=LOG_LEVEL, 
+logging.basicConfig(level=settings.logging_level, 
                     format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
 logging.getLogger("httpx").setLevel(logging.WARNING) # Silenciar logs muy verbosos de httpx
 
@@ -52,7 +51,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                                     +"\nChat id: " + str(update.message.chat_id)
                                     +"\nBot id: " + str(botid.id)
                                     +"\nBotname: " + str(botid.username)
-                                    +"\nAutorizados: " + str(AUTHD_USERS)
+                                    +"\nAutorizados: " + str(settings.authd_users)
                                     +"\n------------------"
                                     +f"\n<b>Juego actual:</b> {GAME_SELECTED}"
                                     +f"\n\n<b>Juegos disponibles:</b>\n{games_list}"
@@ -261,14 +260,14 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
 #TODO usuario_id a notificar por parámetro o config
 #TODO lanzar chuncado solo admin
 ###
-NOTIFY_USER_ID = 91385100
+NOTIFY_USER_ID = settings.admin_user
 async def startup_check(application: Application) -> None:
     """Verifica colecciones ChromaDB al arrancar y notifica al usuario."""
     try:
         client = chromadb.HttpClient(
-            host=CHROMA_HOST,
-            port=CHROMA_PORT,
-            headers={"Authorization": f"Bearer {CHROMA_AUTH_TOKEN}"}
+            host=settings.chroma_host,
+            port=settings.chroma_port,
+            headers={"Authorization": f"Bearer {settings.chroma_auth_token}"}
         )
         existing = {c.name for c in client.list_collections()}
     except Exception as e:
@@ -301,14 +300,14 @@ async def startup_check(application: Application) -> None:
 #  main del bot con el pooling a la espera de comandos
 ###
 def main():
-    app = Application.builder().token(TELEGRAM_BOT_TOKEN).post_init(startup_check).build()
+    app = Application.builder().token(settings.telegram_bot_token).post_init(startup_check).build()
     
-    app.add_handler( CommandHandler("start", start_command, filters=filters.User(AUTHD_USERS)) )
-    app.add_handler( CommandHandler("help", help_command, filters=filters.User(AUTHD_USERS)) )
-    app.add_handler( CommandHandler("game", set_game_command, filters=filters.User(AUTHD_USERS)) )
+    app.add_handler( CommandHandler("start", start_command, filters=filters.User(settings.authd_users)) )
+    app.add_handler( CommandHandler("help", help_command, filters=filters.User(settings.authd_users)) )
+    app.add_handler( CommandHandler("game", set_game_command, filters=filters.User(settings.authd_users)) )
     app.add_handler( CallbackQueryHandler(set_game_button) )
 
-    app.add_handler( MessageHandler(filters.TEXT & ~filters.COMMAND & filters.User(AUTHD_USERS), handle_message) )
+    app.add_handler( MessageHandler(filters.TEXT & ~filters.COMMAND & filters.User(settings.authd_users), handle_message) )
 
     app.add_error_handler(error_handler)
 
@@ -330,7 +329,7 @@ def main():
 
 
 if __name__ == '__main__':
-    if not TELEGRAM_BOT_TOKEN:
+    if not settings.telegram_bot_token:
         logging.error("Error: TELEGRAM_BOT_TOKEN no está configurado.")
         exit()
 

@@ -9,6 +9,7 @@ load_dotenv(find_dotenv())
 # CONFIGURACIONES GENERALES
 # ===========================
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+SALME_USR = int(os.getenv("SALME_USR"))
 usuarios_permitidos_str = os.getenv("USUARIOS_PERMITIDOS")
 AUTHD_USERS = [int(user_id) for user_id in usuarios_permitidos_str.split(",") if user_id.strip().isdigit()]
 
@@ -65,6 +66,7 @@ class Settings(BaseSettings):
     telegram_bot_token: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
     logging_level: str = LOG_LEVEL
     authd_users: list = AUTHD_USERS
+    admin_user: int = SALME_USR
 
     # Rutas
     base_dir: Path = BASE_DIR
