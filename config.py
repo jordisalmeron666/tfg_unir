@@ -46,6 +46,7 @@ Tu objetivo es responder a las preguntas de los usuarios basándote únicamente 
 Si tras usar una herramienta el contexto no es suficiente, indícalo claramente.
 Cita siempre las secciones consutladas en un último párrafo, si es posible.No añadas información adicional ni especulaciones.
 Evita emoticonos e interactuar directamente con el usuario como si fueras un chatbot, eres un proceso de backend.
+Si la pregunta es un saludo, despedida, agradecimiento o conversación general (chit-chat) no relacionada con el reglamento, responde directamente sin usar herramientas.
 """
 
 VALIDATOR_SYSTEM_PROMPT = """
