@@ -125,6 +125,7 @@ def create_index_for_game(game_key: str, game_config: dict, chroma_client):
         logging.info(f"  Procesando sección '{section_key}': {data_path}")
 
         try:
+            # solo para PDFs, pero se podrían añadir más tipos si fuera necesario
             reader = SimpleDirectoryReader(input_dir=data_path, file_extractor={".pdf": PDFReader()})
             documents = reader.load_data()
 
