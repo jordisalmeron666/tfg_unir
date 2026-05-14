@@ -1,25 +1,23 @@
 import sys, logging
 import chromadb
-
+from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
+from llama_index.vector_stores.chroma import ChromaVectorStore
+from llama_index.readers.file import PDFReader
 from llama_index.core import (
     VectorStoreIndex,
     SimpleDirectoryReader,
     StorageContext,
     Settings as LlamaSettings,
 )
-from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
-from llama_index.vector_stores.chroma import ChromaVectorStore
-from llama_index.readers.file import PDFReader
 
 from config import settings
 from indexes import INDEX_CONFIG
 
+#FIXME no todos los jeugos del taco siempre, parametrizar o configurar cuales indexar cada vez
 # ===========================
-
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
-#FIXME no todos los jeugos del taco siempre, parametrizar o configurar cuales indexar cada vez
-#TODO comentar los pasos
+
 
 ###
 # Configura los servicios globales de LlamaIndex (Azure OpenAI Embeddings).
