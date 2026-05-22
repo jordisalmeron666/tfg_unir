@@ -21,7 +21,6 @@ services:
       - CHROMA_SERVER_AUTHN_CREDENTIALS=
       - CHROMA_AUTH_TOKEN_TRANSPORT_HEADER=Authorization
 
-
   tfg_unir:
     image: tfg_unir:latest
     container_name: tfg_unir
