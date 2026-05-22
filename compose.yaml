@@ -1,0 +1,53 @@
+#FIXME revisar
+services:
+  chromadb:
+    image: chromadb/chroma
+    container_name: tfg_chromadb
+    volumes:
+      - chroma_data:/chroma/chroma
+
+    restart: unless-stopped
+    ports:
+      - "801:8000"
+    
+    command: "run --path /chroma/chroma --host 0.0.0.0 --port 8000"
+    
+    environment:
+      - ANONYMIZED_TELEMETRY=FALSE
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+      # Token-based auth
+      - CHROMA_SERVER_AUTHN_PROVIDER=chromadb.auth.token_authn.TokenAuthenticationServerProvider
+      - CHROMA_SERVER_AUTHN_CREDENTIALS=
+      - CHROMA_AUTH_TOKEN_TRANSPORT_HEADER=Authorization
+
+
+  tfg_unir:
+    image: tfg_unir:latest
+    container_name: tfg_unir
+    network_mode: 'host'
+    restart: unless-stopped
+
+    volumes:
+      - ./files:/workspaces/tfg_unir/files
+      - ./logs:/workspaces/tfg_unir/logs
+
+    environment:
+      - TZ=Europe/Madrid
+      - TELEGRAM_BOT_TOKEN=
+      - USUARIOS_PERMITIDOS=
+      - LOG_LEVEL=WARNING
+      - BASE_DIR=/workspaces/tfg_unir/files/ #solo para indexar
+
+      #Chromadb
+      - CHROMA_AUTH_TOKEN=
+      - CHROMA_HOST=localhost
+      - CHROMA_PORT=801
+      
+      #azure_openai
+      - AOAI_API_KEY=
+      - AOAI_ENDPOINT=
+      - AOAI_API_VERSION=
+      - AOAI_EMBEDDING_MODEL=
+      - AOAI_ROUTING_MODEL=
+      - AOAI_ANSWERING_MODEL=

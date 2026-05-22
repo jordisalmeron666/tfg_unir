@@ -257,8 +257,6 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
 
 ###
 # Verificación de colecciones ChromaDB al arrancar y notificación al usuario
-#TODO usuario_id a notificar por parámetro o config
-#TODO lanzar chuncado solo admin
 ###
 NOTIFY_USER_ID = settings.admin_user
 async def startup_check(application: Application) -> None:

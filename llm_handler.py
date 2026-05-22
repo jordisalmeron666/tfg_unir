@@ -19,7 +19,7 @@ from config import (
 )
 from indexes import INDEX_CONFIG
 
-#FIXME desactivar en pro
+##FIXME desactivar en pro
 from llama_index.core import set_global_handler
 set_global_handler("simple")
 
@@ -178,7 +178,6 @@ async def evaluate_response(pregunta: str, respuesta: str) -> dict:
 # ===========================
 # Orquestación
 # ===========================
-#TODO modulo de chitchat para preguntas generales o de contexto que no requieran búsqueda
 async def orchestrate_answer_with_tools(user_query: str, message_provisional=None) -> str:
     """Orquesta la búsqueda y generación de respuesta con historial local."""
 
