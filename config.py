@@ -14,6 +14,7 @@ usuarios_permitidos_str = os.getenv("USUARIOS_PERMITIDOS")
 AUTHD_USERS = [int(user_id) for user_id in usuarios_permitidos_str.split(",") if user_id.strip().isdigit()]
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "WARNING")
+VERBOSE = os.getenv("VERBOSE", "none")
 
 BASE_DIR = os.getenv("BASE_DIR", "/workspaces/tfg_unir/files/")
 
@@ -35,6 +36,7 @@ AOAI_API_VERSION = os.getenv("AOAI_API_VERSION")
 AOAI_EMBEDDING_MODEL = os.getenv("AOAI_EMBEDDING_MODEL")
 AOAI_ROUTING_MODEL = os.getenv("AOAI_ROUTING_MODEL")
 AOAI_ANSWERING_MODEL = os.getenv("AOAI_ANSWERING_MODEL")
+AOAI_SCORING_MODEL = os.getenv("AOAI_SCORING_MODEL")
 
 
 # ===========================
@@ -79,6 +81,7 @@ class Settings(BaseSettings):
     # General
     telegram_bot_token: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
     logging_level: str = LOG_LEVEL
+    verbose: str = VERBOSE
     authd_users: list = AUTHD_USERS
     admin_user: int = SALME_USR
 
@@ -97,6 +100,7 @@ class Settings(BaseSettings):
     aoai_embedding_model: str = AOAI_EMBEDDING_MODEL
     aoai_routing_model: str = AOAI_ROUTING_MODEL
     aoai_answering_model: str = AOAI_ANSWERING_MODEL
+    aoai_scoring_model: str = AOAI_SCORING_MODEL
 
 
 settings = Settings()
@@ -107,4 +111,6 @@ print(f"  ChromaDB: {settings.chroma_host}:{settings.chroma_port}")
 print(f"  Azure OpenAI Embedding Model: {settings.aoai_embedding_model}")
 print(f"  Azure OpenAI Routing Model: {settings.aoai_routing_model}")
 print(f"  Azure OpenAI Answering Model: {settings.aoai_answering_model}")
+print(f"  Azure OpenAI Scoring Model: {settings.aoai_scoring_model}")
+print(f"  Verbose: {settings.verbose}")
 

@@ -21,7 +21,7 @@ from indexes import INDEX_CONFIG
 
 ##FIXME desactivar en pro
 from llama_index.core import set_global_handler
-set_global_handler("simple")
+set_global_handler("simple" if settings.verbose else None)
 
 # ===========================
 # Estado Global
@@ -29,29 +29,43 @@ set_global_handler("simple")
 tools_metadata: Dict[str, str] = {}   # {section_key: description}
 _llm = None
 _eval_llm = None
+_scoring_llm = None
 _index = None                          # VectorStoreIndex activo
 _current_collection_name: str = ""
 
 
-def _get_llm(for_evaluation: bool = False) -> AzureOpenAI:
-    global _llm, _eval_llm
+def _get_llm(for_evaluation: bool = False, for_scoring: bool = False) -> AzureOpenAI:
+    global _llm, _eval_llm, _scoring_llm
 
+    if for_scoring and _scoring_llm:
+        return _scoring_llm
     if for_evaluation and _eval_llm:
         return _eval_llm
-    if not for_evaluation and _llm:
+    if not for_evaluation and not for_scoring and _llm:
         return _llm
 
-    model_name = AOAI_ANSWERING_MODEL if for_evaluation else AOAI_ROUTING_MODEL
+    if for_scoring:
+        model_name = settings.aoai_scoring_model
+        temperature = 0.0
+    elif for_evaluation:
+        model_name = AOAI_ANSWERING_MODEL
+        temperature = 0.1
+    else:
+        model_name = AOAI_ROUTING_MODEL
+        temperature = 0.3
+
     llm = AzureOpenAI(
         model=model_name,
         deployment_name=model_name,
         api_key=AOAI_API_KEY,
         azure_endpoint=AOAI_ENDPOINT,
         api_version=AOAI_API_VERSION,
-        temperature=0.1 if for_evaluation else 0.3,
+        temperature=temperature,
     )
 
-    if for_evaluation:
+    if for_scoring:
+        _scoring_llm = llm
+    elif for_evaluation:
         _eval_llm = llm
     else:
         _llm = llm
@@ -111,7 +125,7 @@ search_tool = FunctionTool.from_defaults(fn=_search_answer_impl, name="search_an
 #TODO revisar si indices estan siempre en memoria o se pueden cargar/destruir segun el juego seleccionado para ahorrar recursos
 def load_game_answerer_model(selected_game: str = "trench_crusade"):
     """Carga el índice ChromaDB del juego seleccionado."""
-    global tools_metadata, _index, _current_collection_name, _llm, _eval_llm
+    global tools_metadata, _index, _current_collection_name, _llm, _eval_llm, _scoring_llm
 
     logging.info(f"Loading game: {selected_game}")
 
@@ -143,6 +157,7 @@ def load_game_answerer_model(selected_game: str = "trench_crusade"):
         _index = VectorStoreIndex.from_vector_store(vector_store, embed_model=embed_model)
         _llm = None
         _eval_llm = None
+        _scoring_llm = None
         logging.info(f"Loaded ChromaDB index for '{selected_game}'. Sections: {list(tools_metadata.keys())}")
 
     except Exception as e:
@@ -180,7 +195,7 @@ async def evaluate_response(pregunta: str, respuesta: str) -> dict:
 # ===========================
 async def score_response(pregunta: str, respuesta: str) -> dict:
     """Puntúa la relevancia y completitud de una respuesta aceptada."""
-    llm = _get_llm(for_evaluation=True)
+    llm = _get_llm(for_scoring=True)
     messages = [
         ChatMessage(role=MessageRole.SYSTEM, content=SCORING_SYSTEM_PROMPT),
         ChatMessage(role=MessageRole.USER, content=f'Pregunta: "{pregunta}"\n\nRespuesta: "{respuesta}"'),
