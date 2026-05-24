@@ -1,5 +1,6 @@
 files/**/*.pdf
 doc/*
+IaC/*
 
 
 # Byte-compiled / optimized / DLL files

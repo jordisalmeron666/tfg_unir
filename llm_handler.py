@@ -14,7 +14,7 @@ from llama_index.vector_stores.chroma import ChromaVectorStore
 from config import (
     AOAI_API_KEY, AOAI_ENDPOINT, AOAI_API_VERSION,
     AOAI_ROUTING_MODEL, AOAI_ANSWERING_MODEL,
-    AGENT_SYSTEM_PROMPT, VALIDATOR_SYSTEM_PROMPT,
+    AGENT_SYSTEM_PROMPT, VALIDATOR_SYSTEM_PROMPT, SCORING_SYSTEM_PROMPT,
     settings,
 )
 from indexes import INDEX_CONFIG
@@ -176,6 +176,27 @@ async def evaluate_response(pregunta: str, respuesta: str) -> dict:
 
 
 # ===========================
+# Scoring de Respuesta
+# ===========================
+async def score_response(pregunta: str, respuesta: str) -> dict:
+    """Puntúa la relevancia y completitud de una respuesta aceptada."""
+    llm = _get_llm(for_evaluation=True)
+    messages = [
+        ChatMessage(role=MessageRole.SYSTEM, content=SCORING_SYSTEM_PROMPT),
+        ChatMessage(role=MessageRole.USER, content=f'Pregunta: "{pregunta}"\n\nRespuesta: "{respuesta}"'),
+    ]
+    try:
+        response = await llm.achat(messages)
+        result_text = response.message.content.strip()
+        if result_text.startswith("```"):
+            result_text = result_text.strip("`").strip("json").strip()
+        return json.loads(result_text)
+    except Exception as e:
+        logging.error(f"Error scoring response: {e}")
+        return {"relevancia": None, "completitud": None}
+
+
+# ===========================
 # Orquestación
 # ===========================
 async def orchestrate_answer_with_tools(user_query: str, message_provisional=None) -> str:
@@ -191,6 +212,7 @@ async def orchestrate_answer_with_tools(user_query: str, message_provisional=Non
     used_sections = []
     round_count = 0
     final_answer = ""
+    scores: dict = {}
 
     available_sections = "\n".join(
         f"- {k}: {v[:100]}..." for k, v in tools_metadata.items()
@@ -270,6 +292,7 @@ Secciones disponibles:
         if evaluation.get("es_aceptable"):
             logging.info("Answer accepted.")
             final_answer = generated_answer
+            scores = await score_response(user_query, generated_answer)
             break
 
         logging.info(f"Answer rejected: {evaluation.get('motivo')}")
@@ -282,7 +305,13 @@ Secciones disponibles:
         final_answer = f"Tras {round_count} búsquedas, no encontré una respuesta clara."
 
     if used_sections:
-        final_answer = f"Secciones consultadas [{len(used_sections)}]: <b>{', '.join(used_sections)}</b>\n\n{final_answer}"
+        scores_line = ""
+        if scores.get("relevancia") is not None and scores.get("completitud") is not None:
+            scores_line = f"\nScores [relevancia: {scores['relevancia']} / completitud: {scores['completitud']}]"
+        final_answer = (
+            f"Secciones consultadas [{len(used_sections)}]: <b>{', '.join(used_sections)}</b>"
+            f"{scores_line}\n\n{final_answer}"
+        )
 
     return final_answer
 
