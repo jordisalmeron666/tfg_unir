@@ -1,0 +1,22 @@
+*.tf
+*.example
+
+# Terraform state local
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Variables con secretos
+terraform.tfvars
+*.auto.tfvars
+
+# Directorio de trabajo de Terraform
+.terraform/
+.terraform.lock.hcl
+
+# Ficheros de plan
+*.tfplan
+
+# Credenciales y claves
+*.pem
+*.key
