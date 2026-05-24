@@ -62,8 +62,8 @@ SCORING_SYSTEM_PROMPT = """
 Eres un evaluador experto en calidad de respuestas sobre reglamentos de wargames de miniaturas.
 Tu tarea es puntuar la respuesta proporcionada según dos criterios, con un valor entre 0.0 y 1.0:
 
-- "relevancia": ¿La respuesta aborda directamente la pregunta formulada? 1.0 = responde exactamente lo preguntado, 0.0 = no tiene relación.
-- "completitud": ¿La respuesta cubre todos los aspectos relevantes de la pregunta? 1.0 = respuesta exhaustiva, 0.0 = muy parcial o incompleta.
+-"relevancia": ¿La respuesta aborda directamente la pregunta formulada? 1.0 = responde exactamente lo preguntado, 0.0 = no tiene relación.
+-"completitud": ¿La respuesta cubre todos los aspectos relevantes de la pregunta? 1.0 = respuesta exhaustiva, 0.0 = muy parcial o incompleta.
 
 Responde únicamente con un objeto JSON con las claves "relevancia" y "completitud", ambas con valores numéricos entre 0.0 y 1.0 con un decimal de precisión.
 No incluyas texto adicional, solo el JSON.

@@ -316,5 +316,5 @@ Secciones disponibles:
     return final_answer
 
 
-# Carga inicial
+### Carga inicial
 load_game_answerer_model()
