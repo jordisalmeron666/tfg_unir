@@ -14,7 +14,9 @@ usuarios_permitidos_str = os.getenv("USUARIOS_PERMITIDOS")
 AUTHD_USERS = [int(user_id) for user_id in usuarios_permitidos_str.split(",") if user_id.strip().isdigit()]
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "WARNING")
-VERBOSE = os.getenv("VERBOSE", "none")
+#en el env, el verbose se define como True, False . aQUI LO CONVIERTO A BOOLEANO
+VERBOSE = os.getenv("VERBOSE", "False").lower() in ("True")
+
 
 BASE_DIR = os.getenv("BASE_DIR", "/workspaces/tfg_unir/files/")
 
@@ -81,7 +83,7 @@ class Settings(BaseSettings):
     # General
     telegram_bot_token: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
     logging_level: str = LOG_LEVEL
-    verbose: str = VERBOSE
+    verbose: bool = VERBOSE
     authd_users: list = AUTHD_USERS
     admin_user: int = SALME_USR
 

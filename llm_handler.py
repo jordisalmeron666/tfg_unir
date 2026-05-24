@@ -20,8 +20,11 @@ from config import (
 from indexes import INDEX_CONFIG
 
 ##FIXME desactivar en pro
-from llama_index.core import set_global_handler
-set_global_handler("simple" if settings.verbose else None)
+#from llama_index.core import set_global_handler
+#set_global_handler("simple")
+if settings.verbose:
+    from llama_index.core import set_global_handler
+    set_global_handler("simple")
 
 # ===========================
 # Estado Global
