@@ -305,7 +305,14 @@ Secciones disponibles:
         response2 = await llm.achat(tool_history)
         generated_answer = response2.message.content or ""
 
+
         evaluation = await evaluate_response(user_query, generated_answer)
+
+        ### Evaluación de la respuesta generada
+        #generated_answer = "A beginning is a very delicate time. Know then, that is is the year 10191. The known universe is ruled by the Padishah Emperor Shaddam the Fourth, my father. In this time, the most precious substance in the universe is the spice Melange. The spice extends life. The spice expands consciousness. The spice is vital to space travel. The Spacing Guild and its navigators, who the spice has mutated over 4000 years, use the orange spice gas, which gives them the ability to fold space. That is, travel to any part of the universe without moving. Oh, yes. I forgot to tell you. The spice exists on only one planet in the entire universe. A desolate, dry planet with vast deserts. Hidden away within the rocks of these deserts are a people known as the Fremen, who have long held a prophecy that a man would come, a messiah, who would lead them to true freedom. The planet is Arrakis, also known as Dune."
+        #generated_answer = "El alcance del fusil de asalto es de 15 pulgadas."
+        #evaluation = {"es_aceptable": True, "motivo": "forced for testing"}
+        ###
 
         if evaluation.get("es_aceptable"):
             logging.info("Answer accepted.")
